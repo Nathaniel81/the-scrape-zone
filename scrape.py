@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import time
+
 
 def fetch_books(page_number):
   url = f"https://books.toscrape.com/catalogue/page-{page_number}.html"
@@ -43,4 +45,7 @@ def main():
   print('Data is saved to books.json')
 
 if __name__ == "__main__":
-  main()
+  while True:
+    main()
+    print('...')
+    time.sleep(10 * 60)
