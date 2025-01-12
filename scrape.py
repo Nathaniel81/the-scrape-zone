@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from openpyxl import Workbook
 
 load_dotenv()
 
@@ -32,7 +33,7 @@ def search_emails_with_serpapi(name, affiliation, api_key):
             emails = [word for word in snippet.split() if "@" in word]
             email_candidates.extend(emails)
         
-        return email_candidates
+        return email_candidates[:5]  # Limit to 5 emails per speaker
     else:
         print(f"Error: {response.status_code}, {response.text}")
         return []
@@ -70,6 +71,24 @@ def fetch_speaker_data_with_selenium(url, wait_class, speaker_class, name_select
     driver.quit()
     return speaker_data
 
+# Function to save data to Excel
+def save_to_excel(data, filename="output.xlsx"):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Speakers Data"
+
+    # Add headers
+    headers = ["Name", "Affiliation", "Email 1", "Email 2", "Email 3", "Email 4", "Email 5"]
+    sheet.append(headers)
+
+    # Add data rows
+    for row in data:
+        sheet.append(row)
+
+    # Save to file
+    workbook.save(filename)
+    print(f"Data saved to {filename}")
+
 # Main script
 def main():
     serpapi_key = os.getenv('SERPAPI_KEY')
@@ -85,13 +104,15 @@ def main():
     speakers = fetch_speaker_data_with_selenium(url, wait_class, speaker_class, name_selector, affiliation_selector)
 
     if speakers:
+        all_data = []
         for name, affiliation in speakers:
             print(f"Searching email for {name}, {affiliation}...")
             emails = search_emails_with_serpapi(name, affiliation, serpapi_key)
-            if emails:
-                print(f"Found emails: {emails}")
-            else:
-                print("No emails found.")
+            emails = emails + [""] * (5 - len(emails))  # Ensure 5 columns for emails
+            all_data.append([name, affiliation] + emails)
+
+        # Save results to Excel
+        save_to_excel(all_data)
     else:
         print("No speakers found.")
 

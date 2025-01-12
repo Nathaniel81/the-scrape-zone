@@ -1,3 +1,4 @@
 /szp
 chromedriver.exe
 .env
+*.xlsx
