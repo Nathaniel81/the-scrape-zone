@@ -9,6 +9,8 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from openpyxl import Workbook
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 load_dotenv()
 
@@ -40,10 +42,13 @@ def search_emails_with_serpapi(name, affiliation, api_key):
 
 # Selenium function to fetch names and affiliations dynamically
 def fetch_speaker_data_with_selenium(url, wait_class, speaker_class, name_selector, affiliation_selector):
-    options = Options()
-    options.headless = True
+    options = webdriver.ChromeOptions()
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get(url)
+    # options = Options()
+    # options.headless = True
     service = Service(executable_path='chromedriver.exe')
-    driver = webdriver.Chrome(service=service, options=options)
+    # driver = webdriver.Chrome(service=service, options=options)
     driver.get(url)
 
     # Wait for the specific section to load
